@@ -133,6 +133,92 @@ void deletion(Node*& root, int data)
 	}
 }
 
+// Level order traversal, aka Breadth First Search, using queue
+void printLevelOrder(Node* root)
+{
+	if (root == NULL) return;
+	queue<Node*> q;
+	q.push(root);
+	while (!q.empty())
+	{
+		Node* node = q.front();
+		q.pop();
+
+		cout << node->data << " ";
+
+		if (node->left != NULL)
+			q.push(node->left);
+		if (node->right != NULL)
+			q.push(node->right);
+	}
+}
+
+// Level order traversal, aka Breadth First Search, using recursion
+int height(Node* root)
+{
+	if (root == NULL)
+		return 0;
+	int lHeight = height(root->left);
+	int rHeight = height(root->right);
+	if (lHeight > rHeight)
+		return lHeight + 1;
+	else
+		return rHeight + 1;
+}
+
+void printGivenLevel(Node* root, int level)
+{
+	if (root == NULL)
+		return;
+	if (level == 1)
+		cout << root->data << " ";
+	else
+	{
+		printGivenLevel(root->left, level - 1);
+		printGivenLevel(root->right, level - 1);
+	}
+}
+
+void printLevelOrder_recursive(Node* root)
+{
+	int h = height(root);
+	for (int i = 0; i <= h; i++)
+		printGivenLevel(root, i);
+}
+
+
+// Depth First Searches:
+// DFS 1: Inorder: Left, Root, Right
+// DFS 2: Preorder: Root, Left, Right
+// DFS 3: postorder: Left, Right, Root
+
+void printInOrder(Node* node)
+{
+	if (node == NULL)
+		return;
+	printInOrder(node->left);
+	cout << node->data << " ";
+	printInOrder(node->right);
+}
+
+void printPreOrder(Node* node)
+{
+	if (node == NULL)
+		return;
+	cout << node->data << " ";
+	printPreOrder(node->left);
+	printPreOrder(node->right);
+}
+
+void printPostOrder(Node* node)
+{
+	if (node == NULL)
+		return;
+	printPostOrder(node->left);
+	printPostOrder(node->right);
+	cout << node->data << " ";
+}
+
 int main()
 {
 	Node* root = new Node(10);
@@ -144,13 +230,25 @@ int main()
 	root->right->left = new Node(15);
 	root->right->right = new Node(8);
 
-	cout << "Inorder traversal:\n";
-	inOrder(root);
+	// cout << "Inorder traversal:\n";
+	// inOrder(root);
 
-	deletion(root, 11);
+	// deletion(root, 11);
 
-	cout << "\nInorder traversal:\n";
-	inOrder(root);
+	// cout << "\nInorder traversal:\n";
+	// inOrder(root);
+
+	cout << "\nPrinting using BFS (using queue):\n";
+	printLevelOrder(root);
+	cout << "\nPrinting using BFS (using recursion):\n";
+	printLevelOrder_recursive(root);
+	cout << "\nPrinting using DFS (Inorder):\n";
+	printInOrder(root);
+	cout << "\nPrinting using DFS (Preorder):\n";
+	printPreOrder(root);
+	cout << "\nPrinting using DFS (Postorder):\n";
+	printPostOrder(root);
+
 
 	return 0;
 }
