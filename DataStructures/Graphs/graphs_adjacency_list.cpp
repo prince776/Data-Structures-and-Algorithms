@@ -10,6 +10,8 @@ struct Graph
 	bool *marked;
 	int *edgeTo;
 	int searchSrc;
+	int *id;
+	int count;
 
 	Graph(int V);
 
@@ -18,6 +20,7 @@ struct Graph
 		delete[] adjList;
 		delete[] marked;
 		delete[] edgeTo;
+		delete[] id;
 	}
 
 	void addEdge(int src, int dest);
@@ -28,6 +31,8 @@ struct Graph
 
 	void resetSearch();
 
+	// searches
+
 	void BFS(int s);
 
 	void DFS(int s);
@@ -37,6 +42,16 @@ struct Graph
 	bool hasPathTo(int v) { return marked[v]; }
 
 	stack<int> pathTo(int v);
+
+	// identifies connected componenets
+	void identifyCC();
+
+	void dfsWithCount(int v);
+
+	int numCC() { return count; }
+
+	int getId(int v) { return id[v]; }
+
 };
 
 Graph::Graph(int V) :
@@ -45,6 +60,8 @@ Graph::Graph(int V) :
 {
 	marked = new bool[V];
 	edgeTo = new int[V];
+	id = new int[V];
+	count = 0;
 	resetSearch();
 }
 
@@ -151,6 +168,35 @@ stack<int> Graph::pathTo(int v)
 	return path;
 }
 
+void Graph::identifyCC()
+{
+	count = 0;
+	for (int i = 0; i < V; i++)
+	{
+		marked[i] = false;
+		id[i] = -1;
+	}
+	for (int v = 0; v < V; v++)
+	{
+		if (!marked[v])
+		{
+			dfsWithCount(v);
+			count++;
+		}
+	}
+}
+
+void Graph::dfsWithCount(int v)
+{
+	marked[v] = true;
+	id[v] = count;
+	for (auto& it: adjList[v])
+	{
+		if (!marked[it])
+			dfsWithCount(it);
+	}
+}
+
 int main()
 {
 	int V = 7;
@@ -185,6 +231,10 @@ int main()
 		cout << path.top() << " ";
 		path.pop();	
 	}
+	cout << endl;
+
+	g.identifyCC();
+	cout << "Total connected componenets: " << g.numCC() << endl;
 
 	return 0;
 }
