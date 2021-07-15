@@ -9,7 +9,7 @@ public:
     DSU(int n)
     {
         parent = vector<int>(n);
-        size = vector<int>(n);
+        size = vector<int>(n, 1);
         iota(begin(parent), end(parent), 0);
     }
     
@@ -25,6 +25,7 @@ public:
         y = getParent(y);
         if (size[x] > size[y])
             swap(x, y);
+        if (x == y) return;
         parent[x] = y;
         size[y] += size[x];
     }
