@@ -9,7 +9,7 @@ using namespace std;
  * @Data Data type of actual values
  * @Node Data type of what to store in segment tree nodes
  * 
- * Node must have constructor Node(const Data &d)
+ * Node must have a default constructor and a constructor Node(const Data &d)
  */
 template<typename Data, typename Node>
 class SegTree
