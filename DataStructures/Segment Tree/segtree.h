@@ -16,10 +16,10 @@ class SegTree
 {
     int n;
     vector<Node> st;
-    function<Node(const Node&, const Node&)> mergeFn;
+    function<Node(Node, Node)> mergeFn;
 public:
     SegTree() = default;
-    SegTree(const vector<Data> &data, const function<Node(const Node&, const Node&)> &fn)
+    SegTree(const vector<Data> &data, const function<Node(Node, Node)> &fn)
     {
         n = data.size();
         st = vector<Node>(4 * n);
