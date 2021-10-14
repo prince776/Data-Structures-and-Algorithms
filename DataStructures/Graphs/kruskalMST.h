@@ -11,18 +11,24 @@ public:
     Edge(int u, int v, int w) :
         u(u), v(v), w(w) {};
 
-    bool operator<(Edge const& other)
+    bool operator<(Edge const& other) const
     {
         return w < other.w;
     }
+    friend istream& operator>>(istream& is, Edge &edge);
 };
+
+istream& operator>>(istream& is, Edge &edge)
+{
+    return (is >> edge.u >> edge.v >> edge.w);
+}
 
 auto kruskalMST(vector<Edge> &edges, int V)
 {
     int cost = 0;
     
     DSU dsu(V);
-    sort(begin(edges), end(edges), [&](auto &x, auto &y) { return x.w < y.w; });
+    sort(begin(edges), end(edges));
 
     vector<Edge> tree;
     for (const auto &[u, v, w] : edges)
