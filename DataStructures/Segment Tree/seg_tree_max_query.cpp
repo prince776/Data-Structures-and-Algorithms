@@ -9,8 +9,8 @@ int32_t main()
 	int n = a.size();
 
 	// SegTree<int, int> st(a, [](int x, int y) { return x + y; });
-	auto mergeFn = [](int x, int y) { return x + y; };
-	SegTree<int, int, decltype(mergeFn)&> st(a, 0, mergeFn);
+	auto mergeFn = [](int x, int y) { return max(x, y); };
+	SegTree<int, int, decltype(mergeFn)&> st(a, INT_MIN, mergeFn);
 
 	// Test to check if seg tree works correctly.
 	random_device dev;
@@ -28,7 +28,7 @@ int32_t main()
     	{
     		// Do a random update
     		int idx = dist(rng) % n;
-    		int newVal = dist(rng);
+    		int newVal = dist(rng) - 500;
 
 			st.pointUpdate(idx, newVal);
     		a[idx] = newVal;
@@ -40,9 +40,9 @@ int32_t main()
     		if (l > r) swap(l, r);
 
     		int stAns = st.query(l ,r);
-    		int actualAns = 0;
+    		int actualAns = INT_MIN;
     		for (int i = l; i <= r; i++)
-    			actualAns += a[i];
+    			actualAns = max(actualAns, a[i]);
 
     		if (actualAns != stAns)
     		{

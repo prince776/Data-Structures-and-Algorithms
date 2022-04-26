@@ -9,26 +9,27 @@ using namespace std;
  * @Data Data type of actual values
  * @Node Data type of what to store in segment tree nodes
  * 
- * Node must have a default constructor and a constructor Node(const Data &d)
+ * identity is Node indentity element on mergeFn i.e mergeFn(x, identity) = x
+ * Node(const Data& data) should be possible
  */
-template<typename Data, typename Node>
+template<typename Data, typename Node, typename MergeFnType>
 class SegTree
 {
     int n;
     vector<Node> st;
-    function<Node(Node, Node)> mergeFn;
+    MergeFnType mergeFn;
+	Node identity;
 public:
     SegTree() = default;
-    SegTree(const vector<Data> &data, const function<Node(Node, Node)> &fn)
+    SegTree(const vector<Data> &data, const Node& identity, MergeFnType &&fn)
+		: mergeFn(forward<MergeFnType>(fn)), identity(identity), n(data.size())
     {
-        n = data.size();
-        st = vector<Node>(4 * n);
-        mergeFn = fn;
-        build(data, 1, 0, n - 1);
+        st = vector<Node>(2 * n - 1);
+        build(data, 0, 0, n - 1);
     }
 
-    Node query(int l, int r) { return queryImpl(l, r, 1, 0, n - 1); };
-    void pointUpdate(int pos, const Data &val) { return pointUpdateImpl(pos, val, 1, 0, n - 1); }
+    Node query(int l, int r) { return queryImpl(l, r, 0, 0, n - 1); };
+    void pointUpdate(int pos, const Data &val) { return pointUpdateImpl(pos, val, 0, 0, n - 1); }
 
 private:
     void build(const vector<Data> &data, int v, int l, int r)
@@ -37,22 +38,22 @@ private:
             st[v] = data[l];
         else
         {
-            int mid = (l + r) / 2;
-            build(data, 2 * v, l, mid);
-            build(data, 2 * v + 1, mid + 1, r);
-            st[v] = mergeFn(st[v * 2], st[v * 2 + 1]);
+			auto [lv, rv, mid] = getChildren(v, l, r);
+            build(data, lv, l, mid);
+            build(data, rv, mid + 1, r);
+            st[v] = mergeFn(st[lv], st[rv]);
         }
     }
 
     Node queryImpl(int l, int r, int v, int nL, int nR)
     {
-        if (l > r) return Node{};
+        if (l > r) return identity;
         if (nL == l && nR == r)
             return st[v];
-	    int mid = (nL + nR) / 2;
+		auto [lv, rv, mid] = getChildren(v, nL, nR);
         return mergeFn(
-            queryImpl(l, min(r, mid), 2 * v, nL, mid),
-            queryImpl(max(l, mid + 1), r, 2 * v + 1, mid + 1, nR)
+            queryImpl(l, min(r, mid), lv, nL, mid),
+            queryImpl(max(l, mid + 1), r, rv, mid + 1, nR)
         );
     }
 
@@ -63,11 +64,17 @@ private:
             st[v] = val;
             return;
         }
-        int mid = (nL + nR) / 2;
+		auto [lv, rv, mid] = getChildren(v, nL, nR);
         if (pos <= mid)
-            pointUpdateImpl(pos, val, 2 * v, nL, mid);
+            pointUpdateImpl(pos, val, lv, nL, mid);
         else
-            pointUpdateImpl(pos, val, 2 * v + 1, mid + 1, nR);
-        st[v] = mergeFn(st[2 * v], st[2 * v + 1]);
+            pointUpdateImpl(pos, val, rv, mid + 1, nR);
+        st[v] = mergeFn(st[lv], st[rv]);
     }
+
+	tuple<int, int, int> getChildren(int v, int nL, int nR) const
+	{
+		int mid = (nL + nR) / 2;
+		return make_tuple(v + 1, v + 2 * (mid - nL + 1), mid);
+	}
 };
